@@ -3,67 +3,53 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-# -------------------------------------------------
-# PAGE CONFIGURATION
-# -------------------------------------------------
+# Page configuration
 st.set_page_config(
     page_title="Global Development Dashboard",
     page_icon="🌍",
     layout="wide"
 )
 
-# -------------------------------------------------
-# TITLE
-# -------------------------------------------------
 st.title("🌍 Global Development Dashboard")
-st.write(
-    "Compare the development indicators of two countries "
-    "using population, health, economy, technology, environment and tourism data."
-)
 
-# -------------------------------------------------
-# LOAD EXCEL FILE
-# -------------------------------------------------
-BASE_DIR = Path(__file__).parent
-EXCEL_FILE = BASE_DIR / "World_development_mesurement.xlsx"
+# Get current app folder
+BASE_DIR = Path(__file__).resolve().parent
 
-if not EXCEL_FILE.exists():
+# Excel file
+excel_file = BASE_DIR / "World_development_mesurement.xlsx"
+
+# Check Excel file
+if not excel_file.exists():
     st.error(
-        f"❌ Dataset not found!\n\n"
-        f"Expected file: {EXCEL_FILE.name}\n\n"
-        "Make sure the Excel file is uploaded to the same GitHub repository "
-        "as app.py."
+        "❌ Excel file not found!\n\n"
+        "Make sure 'World_development_mesurement.xlsx' "
+        "is in the same GitHub folder as app.py."
     )
     st.stop()
 
+# Load Excel
 try:
-    df = pd.read_excel(EXCEL_FILE)
+    df = pd.read_excel(excel_file)
 except Exception as e:
-    st.error(f"❌ Error reading Excel file: {e}")
+    st.error(f"❌ Error loading Excel file: {e}")
     st.stop()
 
-# -------------------------------------------------
-# CHECK REQUIRED COLUMN
-# -------------------------------------------------
+# Check Country column
 if "Country" not in df.columns:
-    st.error("❌ The Excel file must contain a 'Country' column.")
+    st.error("❌ 'Country' column is missing from the Excel file.")
     st.stop()
 
-# -------------------------------------------------
-# COUNTRY LIST
-# -------------------------------------------------
+# Country list
 countries = sorted(
-    df["Country"].dropna().astype(str).unique().tolist()
+    df["Country"].dropna().astype(str).unique()
 )
 
 if len(countries) < 2:
     st.error("❌ At least two countries are required.")
     st.stop()
 
-# -------------------------------------------------
-# COUNTRY SELECTION
-# -------------------------------------------------
-st.subheader("🌎 Select Two Countries for Comparison")
+# Country selection
+st.subheader("🌎 Select Two Countries")
 
 col1, col2 = st.columns(2)
 
@@ -81,91 +67,83 @@ with col2:
         index=1
     )
 
-# -------------------------------------------------
-# GET COUNTRY DATA
-# -------------------------------------------------
-data1 = df[df["Country"].astype(str) == country1]
+# Get country data
+country_data1 = df[
+    df["Country"].astype(str) == country1
+].iloc[0]
 
-data2 = df[df["Country"].astype(str) == country2]
+country_data2 = df[
+    df["Country"].astype(str) == country2
+].iloc[0]
 
-if data1.empty or data2.empty:
-    st.error("❌ Country data not found.")
-    st.stop()
-
-country_data1 = data1.iloc[0]
-country_data2 = data2.iloc[0]
-
-# -------------------------------------------------
-# BASIC DETAILS
-# -------------------------------------------------
+# Basic comparison
 st.header("📊 Country Comparison")
 
 col1, col2 = st.columns(2)
 
 with col1:
-
     st.subheader(f"🌍 {country1}")
 
-    st.metric(
-        "GDP",
-        country_data1.get("GDP", "N/A")
-    )
+    if "GDP" in df.columns:
+        st.metric("GDP", country_data1["GDP"])
 
-    st.metric(
-        "Population",
-        country_data1.get("Population Total", "N/A")
-    )
+    if "Population Total" in df.columns:
+        st.metric(
+            "Population",
+            country_data1["Population Total"]
+        )
 
-    st.metric(
-        "Internet Usage",
-        country_data1.get("Internet Usage", "N/A")
-    )
+    if "Internet Usage" in df.columns:
+        st.metric(
+            "Internet Usage",
+            country_data1["Internet Usage"]
+        )
 
-    st.metric(
-        "Life Expectancy Male",
-        country_data1.get("Life Expectancy Male", "N/A")
-    )
+    if "Life Expectancy Male" in df.columns:
+        st.metric(
+            "Life Expectancy Male",
+            country_data1["Life Expectancy Male"]
+        )
 
-    st.metric(
-        "Life Expectancy Female",
-        country_data1.get("Life Expectancy Female", "N/A")
-    )
+    if "Life Expectancy Female" in df.columns:
+        st.metric(
+            "Life Expectancy Female",
+            country_data1["Life Expectancy Female"]
+        )
 
 
 with col2:
-
     st.subheader(f"🌍 {country2}")
 
-    st.metric(
-        "GDP",
-        country_data2.get("GDP", "N/A")
-    )
+    if "GDP" in df.columns:
+        st.metric("GDP", country_data2["GDP"])
 
-    st.metric(
-        "Population",
-        country_data2.get("Population Total", "N/A")
-    )
+    if "Population Total" in df.columns:
+        st.metric(
+            "Population",
+            country_data2["Population Total"]
+        )
 
-    st.metric(
-        "Internet Usage",
-        country_data2.get("Internet Usage", "N/A")
-    )
+    if "Internet Usage" in df.columns:
+        st.metric(
+            "Internet Usage",
+            country_data2["Internet Usage"]
+        )
 
-    st.metric(
-        "Life Expectancy Male",
-        country_data2.get("Life Expectancy Male", "N/A")
-    )
+    if "Life Expectancy Male" in df.columns:
+        st.metric(
+            "Life Expectancy Male",
+            country_data2["Life Expectancy Male"]
+        )
 
-    st.metric(
-        "Life Expectancy Female",
-        country_data2.get("Life Expectancy Female", "N/A")
-    )
+    if "Life Expectancy Female" in df.columns:
+        st.metric(
+            "Life Expectancy Female",
+            country_data2["Life Expectancy Female"]
+        )
 
-# -------------------------------------------------
-# CATEGORIES
-# -------------------------------------------------
+# Categories
 categories = {
-
     "Population": [
         "Population 0-14",
         "Population 15-64",
@@ -208,28 +186,20 @@ categories = {
     ]
 }
 
-# -------------------------------------------------
-# FIND AVAILABLE COLUMNS
-# -------------------------------------------------
+# Only use columns that actually exist
 available_categories = {}
 
-for category_name, columns in categories.items():
+for category, columns in categories.items():
 
     available_columns = [
-        column for column in columns
-        if column in df.columns
+        col for col in columns
+        if col in df.columns
     ]
 
     if available_columns:
-        available_categories[category_name] = available_columns
+        available_categories[category] = available_columns
 
-if not available_categories:
-    st.error("❌ None of the expected indicator columns were found.")
-    st.stop()
-
-# -------------------------------------------------
-# SELECT CATEGORY
-# -------------------------------------------------
+# Category selection
 category = st.selectbox(
     "Select Category",
     list(available_categories.keys())
@@ -239,9 +209,8 @@ cols = available_categories[category]
 
 st.header(f"📈 {category} Comparison")
 
-# -------------------------------------------------
-# VALUE CONVERSION FUNCTION
-# -------------------------------------------------
+
+# Convert values
 def convert_value(value):
 
     if pd.isna(value):
@@ -265,37 +234,30 @@ def convert_value(value):
     try:
         return float(value)
 
-    except (ValueError, TypeError):
+    except:
         return 0.0
 
 
-# -------------------------------------------------
-# CREATE VALUES
-# -------------------------------------------------
+# Create values
 values1 = []
 values2 = []
 
-for column in cols:
+for col in cols:
 
     values1.append(
-        convert_value(country_data1[column])
+        convert_value(country_data1[col])
     )
 
     values2.append(
-        convert_value(country_data2[column])
+        convert_value(country_data2[col])
     )
 
-# -------------------------------------------------
-# COMPARISON TABLE
-# -------------------------------------------------
+
+# Comparison table
 comparison_df = pd.DataFrame({
-
     "Indicator": cols,
-
     country1: values1,
-
     country2: values2
-
 })
 
 st.subheader("📋 Indicator Comparison")
@@ -305,28 +267,26 @@ st.dataframe(
     use_container_width=True
 )
 
-# -------------------------------------------------
-# BAR CHART
-# -------------------------------------------------
+
+# Bar chart
 st.subheader("📊 Comparison Chart")
 
 fig, ax = plt.subplots(figsize=(12, 6))
 
 x = range(len(cols))
-
 width = 0.35
 
 ax.bar(
     [i - width / 2 for i in x],
     values1,
-    width=width,
+    width,
     label=country1
 )
 
 ax.bar(
     [i + width / 2 for i in x],
     values2,
-    width=width,
+    width,
     label=country2
 )
 
@@ -341,7 +301,7 @@ ax.set_xticklabels(
 ax.set_ylabel("Value")
 
 ax.set_title(
-    f"{country1} vs {country2} - {category}"
+    f"{country1} vs {country2}"
 )
 
 ax.legend()
@@ -352,43 +312,31 @@ st.pyplot(fig)
 
 plt.close(fig)
 
-# -------------------------------------------------
-# HIGHEST VALUE COMPARISON
-# -------------------------------------------------
+
+# Highest value
 st.subheader("🏆 Highest Value Comparison")
 
 results = []
 
 for i in range(len(cols)):
 
-    indicator = cols[i]
-
     value1 = values1[i]
-
     value2 = values2[i]
 
     if value1 > value2:
-
         winner = country1
 
     elif value2 > value1:
-
         winner = country2
 
     else:
-
         winner = "Equal"
 
     results.append({
-
-        "Indicator": indicator,
-
+        "Indicator": cols[i],
         country1: value1,
-
         country2: value2,
-
         "Highest Value": winner
-
     })
 
 result_df = pd.DataFrame(results)
@@ -398,51 +346,46 @@ st.dataframe(
     use_container_width=True
 )
 
-# -------------------------------------------------
-# FINAL RESULT
-# -------------------------------------------------
+
+# Final result
 st.subheader("🏅 Final Comparison Result")
 
 country1_wins = 0
 country2_wins = 0
-equal_count = 0
+equal = 0
 
 for i in range(len(cols)):
 
     if values1[i] > values2[i]:
-
         country1_wins += 1
 
     elif values2[i] > values1[i]:
-
         country2_wins += 1
 
     else:
+        equal += 1
 
-        equal_count += 1
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-
     st.metric(
         f"{country1} Wins",
         country1_wins
     )
 
 with col2:
-
     st.metric(
         f"{country2} Wins",
         country2_wins
     )
 
 with col3:
-
     st.metric(
         "Equal",
-        equal_count
+        equal
     )
+
 
 if country1_wins > country2_wins:
 
@@ -462,29 +405,25 @@ else:
         "🤝 Both countries have the same number of wins!"
     )
 
-# -------------------------------------------------
-# COUNTRY DETAILS
-# -------------------------------------------------
+
+# Country details
 st.subheader(f"📋 {country1} Details")
 
 st.dataframe(
-    data1,
+    df[df["Country"].astype(str) == country1],
     use_container_width=True
 )
 
 st.subheader(f"📋 {country2} Details")
 
 st.dataframe(
-    data2,
+    df[df["Country"].astype(str) == country2],
     use_container_width=True
 )
 
-# -------------------------------------------------
-# FOOTER
-# -------------------------------------------------
 st.markdown("---")
 
 st.caption(
     "🌍 Global Development Dashboard | "
-    "Built with Python, Pandas, Matplotlib and Streamlit"
+    "Python + Pandas + Matplotlib + Streamlit"
 )
