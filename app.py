@@ -88,16 +88,10 @@ with col1:
         st.metric("GDP", country_data1["GDP"])
 
     if "Population Total" in df.columns:
-        st.metric(
-            "Population",
-            country_data1["Population Total"]
-        )
+        st.metric("Population", country_data1["Population Total"])
 
     if "Internet Usage" in df.columns:
-        st.metric(
-            "Internet Usage",
-            country_data1["Internet Usage"]
-        )
+        st.metric("Internet Usage", country_data1["Internet Usage"])
 
     if "Life Expectancy Male" in df.columns:
         st.metric(
@@ -111,7 +105,6 @@ with col1:
             country_data1["Life Expectancy Female"]
         )
 
-
 with col2:
     st.subheader(f"🌍 {country2}")
 
@@ -119,16 +112,10 @@ with col2:
         st.metric("GDP", country_data2["GDP"])
 
     if "Population Total" in df.columns:
-        st.metric(
-            "Population",
-            country_data2["Population Total"]
-        )
+        st.metric("Population", country_data2["Population Total"])
 
     if "Internet Usage" in df.columns:
-        st.metric(
-            "Internet Usage",
-            country_data2["Internet Usage"]
-        )
+        st.metric("Internet Usage", country_data2["Internet Usage"])
 
     if "Life Expectancy Male" in df.columns:
         st.metric(
@@ -186,10 +173,10 @@ categories = {
     ]
 }
 
-# Only use columns that actually exist
+# Only use columns that exist
 available_categories = {}
 
-for category, columns in categories.items():
+for category_name, columns in categories.items():
 
     available_columns = [
         col for col in columns
@@ -197,7 +184,11 @@ for category, columns in categories.items():
     ]
 
     if available_columns:
-        available_categories[category] = available_columns
+        available_categories[category_name] = available_columns
+
+if not available_categories:
+    st.error("❌ None of the expected indicator columns were found.")
+    st.stop()
 
 # Category selection
 category = st.selectbox(
@@ -234,7 +225,7 @@ def convert_value(value):
     try:
         return float(value)
 
-    except:
+    except (ValueError, TypeError):
         return 0.0
 
 
@@ -299,10 +290,7 @@ ax.set_xticklabels(
 )
 
 ax.set_ylabel("Value")
-
-ax.set_title(
-    f"{country1} vs {country2}"
-)
+ax.set_title(f"{country1} vs {country2}")
 
 ax.legend()
 
